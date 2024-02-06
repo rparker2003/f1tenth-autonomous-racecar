@@ -1,22 +1,79 @@
-# SETUP
-This Repo is meant to be cloned into your ``~/ws/gym-one/`` directory, as the ``f1tenth_gym_ros`` directory has machine specific paths in the ``docker-compose.yml`` file, so we'll avoid that headache :). 
+# F1TENTH Autonomous Racecar Setup Guide
 
-## Cloning a Private Repo 
-If you don't have your github account tied to your Linux machine, you'll have to tie it with an SSH Key, or Authentication Token: 
-- Authentication Token : https://stackoverflow.com/questions/68775869/message-support-for-password-authentication-was-removed
-- SSH Key(Preferred)   : https://www.youtube.com/watch?v=5jwzAhcovMU
+**Disclaimer: Setting up and running this repository requires a solid understanding of Docker and ROS2.**
 
-## After Cloning into ``~/ws/gym-one``
-As mentioned, ``ws/gym-one/f1tenth_gym_ros/docker-compose.yml`` will need to be updated to include the directory, update volumes with these 
-```
-  - /your/path/to/ws/gym-one/f1tenth-cs489/safety_node/:/sim_ws/src/safety_node
-  - /your/path/to/ws/gym-one/f1tenth-cs489/wall_follow/:/sim_ws/src/wall_follow
-  - /your/path/to/ws/gym-one/f1tenth-cs489/gap_follow/:/sim_ws/src/gap_follow
-  - /your/path/to/ws/gym-one/f1tenth-cs489/pure_pursuit/:/sim_ws/src/pure_pursuit
-```
+## Prerequisites
+- Docker environment installed and configured
+- ROS2 Environment set up properly
+- Patience and persistence
 
-- Notice for your prior entries, such as safety_node and wall_follow, you just need to add the ``f1tenth-autonomous-racecar/ directory`` in the middle there, 
-- ``.:/sim_ws/src/f1tenth_gym_ros`` at line 29 should remain unchanged 
+## Setup
+
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/rparker2003/f1tenth-autonomous-racecar
+    ```
+
+2. **Adjust volume paths in `f1tenth-autonomous-racecar/f1tenth_gym_ros/docker-compose.yml`.**
+    - Uncomment the volume paths.
+    - Add your directory prefix to all of them.
+
+3. **Navigate to the `f1tenth-autonomous-racecar/f1tenth_gym_ros` directory and start the Docker container:**
+    ```bash
+    docker-compose up
+    ```
+
+4. **Open another terminal and enter the Docker container:**
+    ```bash
+    docker exec -it f1tenth_gym_ros_sim_1 /bin/bash
+    ```
+
+5. **Inside the Docker container, source the necessary files and build the packages:**
+    ```bash
+    source /opt/ros/foxy/setup.bash
+    source install/local_setup.bash
+    colcon build
+    ```
+
+## Usage
+
+Ensure you have at least two terminals available:
+
+1. **Launch the simulator:**
+    ```bash
+    ros2 launch f1tenth_gym_ros gym_bridge_launch.py
+    ```
+
+2. **In a separate terminal within the Docker container (you can use tmux), start the keyboard controls for the vehicle:**
+    ```bash
+    ros2 run teleop_twist_keyboard teleop_twist_keyboard
+    ```
+
+3. **(Optional) Run the volume scripts:**
+    ```bash
+    cd src/volume_name/scripts/
+    python3 script_name.py
+    ```
+
+## Accessing the VNC
+
+After executing `docker-compose up`, a localhost VNC is available on port 8080. Access it through:
+- `localhost:8080/vnc.html`
+- `IP:8080/vnc.html` if running the container remotely.
 
 
-Now you're good to cook 👨‍🍳
+## Volumes
+These are the actual packages. AKA these are the files you will be running and writing to do stuff like automated driving and braking.
+
+
+## Labs
+
+In the `f1tenth-autonomous-racecar/labs` folder, there are 4 files. The first lab provides detailed instructions on setting up the original `f1tenth_gym_ros` package. If you encounter issues with setup, try Lab 1 first, as this repository is based on it.
+
+## Scripts
+
+The `f1tenth-autonomous-racecar/scripts` folder contains `run.sh` and `tmux.sh`:
+- `run.sh` executes Setup steps 4 and 5.
+- `tmux.sh` executes Usage steps 1, 2, and 3, with step 3 defaulting to `src/gap_follow/scripts`.
+
+## Good luck! 🏎💨
